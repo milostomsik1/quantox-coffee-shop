@@ -1,0 +1,19 @@
+{
+  "name": "quantox-coffee-shop",
+  "version": "1.0.0",
+  "description": "Quantox Coffee Shop",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Milos Tomsik",
+  "license": "ISC",
+  "dependencies": {
+    "browser-sync": "^2.18.8",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.1",
+    "gulp-htmlmin": "^3.0.0",
+    "gulp-sass": "^3.1.0",
+    "gulp-uglify": "^2.1.2"
+  }
+}
