@@ -1,3 +1,32 @@
 #coffee-shops-list {
 	margin-top: 30px;
+	border-top: 1px solid $border;
+}
+
+#coffee-shop {
+	margin: 15px 0;
+	display: flex;
+}
+
+#coffee-shop__picture {
+	width: 100px;
+	height: 75px;
+	margin-right: 30px;
+}
+
+.coffee-shop__info {
+	flex: 1;
+	border-bottom: 1px solid $border;
+}
+
+#coffee-shop__name {
+	font-size: $shopTitleSize;
+	font-weight: $shopTitleWeight;
+	color: $text;
+}
+
+#coffee-shop__price {
+	font-size: $shopPriceSize;
+	font-weight: $shopPriceWeight;
+	color: $text;
 }

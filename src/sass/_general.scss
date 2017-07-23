@@ -9,12 +9,14 @@
 
 #google-map {
 	height: 100vh;
-	width: 100%;
+	width:calc(100% - 480px);
+	top: 0;
+	left: 0;
+	position: fixed !important;
 }
 
-.content {
-	position: fixed;
-	z-index: 999;
+#content {
+	position: absolute;
 	right: 0;
 	top: 0;
 	width: 480px;

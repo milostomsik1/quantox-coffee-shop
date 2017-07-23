@@ -56,7 +56,7 @@ function getError(error) {
 //SEARCHES FOR UP TO 10 COFFEE SHOPS WITHIN 1000M RADIUS
 function searchForCoffeeShops(lat, lng) {
 	var venuesRequested = 10;
-	var searchRadius = 1500;  // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< VRATITI NA 1000 METARA
+	var searchRadius = 1300;  // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< VRATITI NA 1000 METARA
 	var searchVenuesURL =	"https://api.foursquare.com/v2/venues/search?" +
 									"client_id=" + CLIENT_ID +
 									"&client_secret=" + CLIENT_SECRET +
@@ -71,7 +71,6 @@ function searchForCoffeeShops(lat, lng) {
 	ajax.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var coffeeShopList = JSON.parse(this.responseText).response.venues;
-			console.log(coffeeShopList);
 			coffeeShopList.forEach(function(shop, index){
 				var id = coffeeShopList[index].id; //passing id to look up venue by ID
 				var distance = coffeeShopList[index].location.distance; //passing distance because the VENUE object doesn't contain distance from user
@@ -123,7 +122,7 @@ function getCoffeeShopInfo(coffeeShopId, coffeeShopDistance) {
 				lng : coffeeShop.location.lng
 			}
 			coffeeShops.push(coffeeShopObj);
-			sortByClosest();
+			addCoffeeShopToList(coffeeShopObj);
 			createShopMarker(coffeeShopObj);
 		}
 	};
@@ -132,13 +131,13 @@ function getCoffeeShopInfo(coffeeShopId, coffeeShopDistance) {
 }
 
 //// SORT FUNCTIONS
-function sortByClosest() {
+function sortByDistance() {
 	coffeeShops.sort(function(a,b) {
 		return a.distance - b.distance;
 	});
 }
 
-function sortByCheapest() {
+function sortByPrice() {
 	coffeeShops.sort(function(a,b) {
 		return a.price - b.price;
 	});
@@ -179,3 +178,51 @@ function createUserMarker(userLat, userLng) {
 		icon: "./assets/user-icon.png",
 	});
 }
+
+
+//RENDERING HTML ITEMS
+function addCoffeeShopToList (coffeeShop) {
+	var ul = document.getElementById("coffee-shops-list");
+	var li = document.createElement("li");
+
+	function coffeeShopPriceExists() {
+		if (coffeeShop.price<=4) {
+			return "Price: " + "$".repeat(coffeeShop.price);
+		} else {
+			return "";
+		}
+	}
+
+	var html =
+	'<li id="coffee-shop">' +
+		'<img  id="coffee-shop__picture" src=" '+ coffeeShop.picture +' " alt=" '+ coffeeShop.name + ' ">' +
+		'<div class="coffee-shop__info">' +
+			'<h3 id="coffee-shop__name">' + coffeeShop.name + ' (' + coffeeShop.distance + 'm)</h3>' +
+			'<p id="coffee-shop__price">' + coffeeShopPriceExists() +'</p>' +
+		'</div>' +
+	'</li>';
+
+	li.innerHTML = html;
+	ul.appendChild(li);
+}
+
+//SET ACTIVE CLASS AND SORT  <<< ADD DYNAMIC CODE HERE
+document.getElementById("sort__distance").addEventListener("click", function() {
+	document.getElementById("sort__distance").classList.add('sort__button--active');
+	document.getElementById("sort__price").classList.remove('sort__button--active');
+	sortByDistance();
+	document.getElementById("coffee-shops-list").innerHTML = "";
+	coffeeShops.forEach(function(shop){
+		addCoffeeShopToList(shop);
+	});
+
+});
+document.getElementById("sort__price").addEventListener("click", function() {
+	document.getElementById("sort__price").classList.add('sort__button--active');
+	document.getElementById("sort__distance").classList.remove('sort__button--active');
+	sortByPrice();
+	document.getElementById("coffee-shops-list").innerHTML = "";
+	coffeeShops.forEach(function(shop){
+		addCoffeeShopToList(shop);
+	});
+});

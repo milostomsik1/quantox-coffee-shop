@@ -1,4 +1,30 @@
 .sort {
 	margin-top: 30px;
+	display: flex;
+}
+
+.sort__button {
+	font-size: $sortTextSize;
+	font-weight: $sortTextWeight;
+	background-color: $inverse-text;
+	text-align: center;
 	color: $primary;
+	border: 1px solid $border;
+	border-radius: 3px;
+	padding: 14px 0;
+	flex: 1;
+	&:first-child {
+		margin-right: 30px;
+	}
+	&:hover {
+		background-color: $primary;
+		color: $inverse-text;
+		border-color: $primary;
+	}
+}
+
+.sort__button--active {
+	background-color: $primary;
+	color: $inverse-text;
+	border-color: $primary;
 }
