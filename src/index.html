@@ -6,19 +6,36 @@
 	<meta name="description" content="Quantox Coffee Shop | Taste the best coffee nearby!">
 	<meta name="keywords" content="quantox, coffee, shop, best, app, nearby">
 	<meta name="author" content="Miloš Tomšik">
-
 	<title>Quantox Coffee Shop</title>
-
 	<link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 	<div id="google-map"></div>
 
+	<div class="content">
+		<div class="banner">
+			<h1 class="banner__title">Coffee Shops</h1>
+			<h2 class="banner__subtitle">Taste the best coffee nearby!</h1>
+		</div>
+		<div class="sort">
+			<a id="sort__distance" class="sort__button sort__button--active" href="#">Sort by Distance</a>
+			<a id="sort__price" class="sort__button" href="#">Sort by Price</a>
+		</div>
+		<ul id="coffee-shops-list">
+			<li id="coffee-shop">
+				<img  id="coffee-shop__picture" src="#" alt="Coffee Shop One">
+				<div class="coffee-shop__info">
+					<h3 id="coffee-shop__name">Coffee Shop One</h3>
+					<p id="coffee-shop__price">Price: $$$$</p>
+				</div>
+			</li>
+		</ul>
+	</div>
+
 	<script async defer
 	    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4L_QGX6E5Kb2ggRi_B0ijnBUTBSGSx4g">
 	    </script>
-	<!-- User JavaScript -->
 	<script src="js/main.js"></script>
 </body>
 </html>

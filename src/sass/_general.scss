@@ -1,9 +1,25 @@
 * {
 	margin: 0;
 	padding: 0;
+	box-sizing: border-box;
+	font-family: $font-family;
+	list-style-type: none;
+	text-decoration: none;
 }
 
 #google-map {
 	height: 100vh;
 	width: 100%;
+}
+
+.content {
+	position: fixed;
+	z-index: 999;
+	right: 0;
+	top: 0;
+	width: 480px;
+	min-height: 100vh;
+	padding: 30px;
+	background-color: $inverse-text;
+	background: linear-gradient($primary 0%,$primary 130px,$inverse-text 130px,$inverse-text 100%);
 }

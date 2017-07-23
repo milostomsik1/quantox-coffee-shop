@@ -1,0 +1,19 @@
+.banner {
+	height: 150px;
+	color: $coffee;
+	background-color: $accent;
+	background-image: url(../assets/banner.png);
+	background-repeat: no-repeat;
+	background-position: center right;
+	padding: 50px 30px 30px;
+}
+
+.banner__title {
+	font-size: $bannerTitleSize;
+	font-weight: $bannerTitleWeight;
+}
+
+.banner__subtitle {
+	font-size: $bannerSubtitleSize;
+	font-weight: $bannerSubtitleWeight;
+}
