@@ -21,6 +21,9 @@
 		color: $inverse-text;
 		border-color: $primary;
 	}
+	@media (max-width: 575px) {
+		font-size: $sortTextSize*0.9;
+	}
 }
 
 .sort__button--active {
