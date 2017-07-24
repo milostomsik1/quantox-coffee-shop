@@ -1,7 +1,6 @@
 //Foursquare API auth
 var CLIENT_ID = "3DG1ROMCV35ATTHJNEUPDYFTFCSFN52DCTKMDLFLS5ZDAJVC"; //ES6 CONST
 var CLIENT_SECRET = "WVS2J45N3P1IWEGDFZHVPZXOBELB5XR1VHNZQZ2KMAQVHRQO"; //ES6 CONST
-// var GOOGLE_MAPS_API_KEY = "AIzaSyA4L_QGX6E5Kb2ggRi_B0ijnBUTBSGSx4g" //ES6 CONST
 
 
 //GLOBAL VARS
@@ -57,7 +56,7 @@ function getError(error) {
 //SEARCHES FOR UP TO 10 COFFEE SHOPS WITHIN 1000M RADIUS
 function searchForCoffeeShops(lat, lng) {
 	var venuesRequested = 10;
-	var searchRadius = 9999;  // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< VRATITI NA 1000 METARA
+	var searchRadius = 1000;
 	var searchVenuesURL =	"https://api.foursquare.com/v2/venues/search?" +
 									"client_id=" + CLIENT_ID +
 									"&client_secret=" + CLIENT_SECRET +
