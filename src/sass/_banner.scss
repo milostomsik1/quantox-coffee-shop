@@ -7,16 +7,35 @@
 	background-position: center right;
 	padding: 50px 30px 30px;
 	@media (max-width: 991px) {
+		padding-left: 15%; //fallback
 		padding-left: calc(25vw - 75px);
+	}
+	@media (max-width: 575px) {
+		color: $inverse-text;
+		text-align: center;
+		padding-left: 0;
+		padding-right: 0;
 	}
 }
 
 .banner__title {
 	font-size: $bannerTitleSize;
 	font-weight: $bannerTitleWeight;
+	@media (max-width: 575px) {
+		background-color: $coffee; //fallback
+		background-color: rgba($accent, 0.8);
+		width: 100%;
+		padding-top: 10px;
+	}
 }
 
 .banner__subtitle {
 	font-size: $bannerSubtitleSize;
 	font-weight: $bannerSubtitleWeight;
+	@media (max-width: 575px) {
+		background-color: $coffee; //fallback
+		background-color: rgba($accent, 0.8);
+		width: 100%;
+		padding-bottom: 10px;
+	}
 }

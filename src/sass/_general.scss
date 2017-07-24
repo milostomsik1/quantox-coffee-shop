@@ -9,6 +9,7 @@
 
 #google-map {
 	height: 100vh;
+	width: 100%; //fallback
 	width:calc(100% - 480px);
 	position: fixed !important;
 	@media (max-width: 991px) {
@@ -25,7 +26,7 @@
 	width: 480px;
 	min-height: 100vh;
 	padding: 30px;
-	background-color: $inverse-text;
+	background: $inverse-text; //fallback
 	background: linear-gradient($primary 0%,$primary 130px,$inverse-text 130px,$inverse-text 100%);
 	@media (max-width: 991px) {
 		padding-bottom: 30vh;

@@ -7,6 +7,7 @@
 	<meta name="keywords" content="quantox, coffee, shop, best, app, nearby">
 	<meta name="author" content="Miloš Tomšik">
 	<title>Quantox Coffee Shop</title>
+	<link rel="shortcut icon" type="image/png" href="./assets/coffee-icon.png"/>
 	<link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -19,8 +20,8 @@
 			<h2 class="banner__subtitle">Taste the best coffee nearby!</h1>
 		</div>
 		<div class="sort">
-			<a id="sort__distance" class="sort__button sort__button--active" href="#" onclick="">Sort by Distance</a>
-			<a id="sort__price" class="sort__button" href="#" onclick="">Sort by Price</a>
+			<a id="sort__distance" class="sort__button sort__button--active" href="#" onclick="sortByDistanceAndRenderHTML()">Sort by Distance</a>
+			<a id="sort__price" class="sort__button" href="#" onclick="sortByPriceAndRenderHTML()">Sort by Price</a>
 		</div>
 		<ul id="coffee-shops-list">
 		</ul>
@@ -28,13 +29,14 @@
 
 	<div id="modal">
 		<div class="error-box">
-			<!-- <span class="error-box__close">x</span> -->
 			<img src="./assets/x.png" alt="error message" class="error-box__image">
 			<p id="error-box__description"></p>
 		</div>
 	</div>
-	<script async defer
-	    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4L_QGX6E5Kb2ggRi_B0ijnBUTBSGSx4g&sensor=true">
+
+	<!-- turned off async to make sure map init isnt undefined -->
+	<script defer
+	    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4L_QGX6E5Kb2ggRi_B0ijnBUTBSGSx4g">
 	    </script>
 	<script src="js/main.js"></script>
 </body>

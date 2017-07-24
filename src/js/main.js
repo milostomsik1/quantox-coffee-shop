@@ -3,7 +3,8 @@ var CLIENT_ID = "3DG1ROMCV35ATTHJNEUPDYFTFCSFN52DCTKMDLFLS5ZDAJVC"; //ES6 CONST
 var CLIENT_SECRET = "WVS2J45N3P1IWEGDFZHVPZXOBELB5XR1VHNZQZ2KMAQVHRQO"; //ES6 CONST
 // var GOOGLE_MAPS_API_KEY = "AIzaSyA4L_QGX6E5Kb2ggRi_B0ijnBUTBSGSx4g" //ES6 CONST
 
-//VARS
+
+//GLOBAL VARS
 var userLatitude;
 var userLongitude;
 var map;
@@ -12,8 +13,7 @@ var coffeeShops = [];
 
 
 //GEOLOCATION API
-
-//RUNS GEOLOCATION ON LOAD
+//RUNNING GEOLOCATION ON LOAD
 (function getLocation() {
 	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(getLatLng, getError, {enableHighAccuracy:true, timeout:30000, maximumAge:600000}); //30sec timeout, 10min age
@@ -22,7 +22,8 @@ var coffeeShops = [];
 	}
 })();
 
-//RETURNING COORDS AND CALLING SEARCH FUNCTION
+
+//RETURNING COORDS AND CALLING SEARCH FUNCTION, INITIALIZING MAP AND ADDING MARKERS
 function getLatLng(position) {
 	userLatitude = position.coords.latitude;
 	userLongitude = position.coords.longitude;
@@ -32,6 +33,8 @@ function getLatLng(position) {
 	createUserMarker(userLatitude, userLongitude);
 }
 
+
+//ERROR HANDLING
 function getError(error) {
 	switch(error.code) {
 		case error.PERMISSION_DENIED:
@@ -49,8 +52,8 @@ function getError(error) {
 	}
 }
 
-//FOURSQUARE API
 
+//FOURSQUARE API
 //SEARCHES FOR UP TO 10 COFFEE SHOPS WITHIN 1000M RADIUS
 function searchForCoffeeShops(lat, lng) {
 	var venuesRequested = 10;
@@ -65,33 +68,37 @@ function searchForCoffeeShops(lat, lng) {
 									"&limit=" + venuesRequested +
 									"&query=coffee";
 
-	var ajax = new XMLHttpRequest();
-	ajax.onreadystatechange = function() {
+	var ajaxSearch = new XMLHttpRequest();
+	ajaxSearch.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
-			var coffeeShopList = JSON.parse(this.responseText).response.venues;
-			coffeeShopList.forEach(function(shop, index){
-				var id = coffeeShopList[index].id; //passing id to look up venue by ID
-				var distance = coffeeShopList[index].location.distance; //passing distance because the VENUE object doesn't contain distance from user
-				getCoffeeShopInfo(id, distance);
+			var foundCoffeeShops = JSON.parse(this.responseText).response.venues;
+			//runs thru list  of coffee shops and queries for info about venue
+			foundCoffeeShops.forEach(function(shop, index){
+				var id = foundCoffeeShops[index].id; //passing id to look up venue by ID
+				var distance = foundCoffeeShops[index].location.distance; //passing distance because the VENUE object doesn't contain distance from user to venue, found it more convenient than using array of distances in searchForCoffeeShops scope and pulling it into getCoffeeShopInfo by closure
+				getCoffeeShopInfo(id, distance); //runs thru all of the coffee shops found by previous search and gets info about them, referenced by ID
 			});
 		}
 	};
-	ajax.open("GET", searchVenuesURL, true);
-	ajax.send();
+	ajaxSearch.open("GET", searchVenuesURL, true);
+	ajaxSearch.send();
 };
+
 
 //GETS INFO FOR A SINGLE COFFEE SHOP REFERENCED BY ID
 function getCoffeeShopInfo(coffeeShopId, coffeeShopDistance) {
-	var ajax = new XMLHttpRequest();
 	var venueURL = "https://api.foursquare.com/v2/venues/" +
 						coffeeShopId +
 						"?client_id=" + CLIENT_ID +
 						"&client_secret=" + CLIENT_SECRET +
 						"&v=20130815";
 
-	ajax.onreadystatechange = function() {
+	var ajaxGetInfo = new XMLHttpRequest();
+	ajaxGetInfo.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var coffeeShop = JSON.parse(this.responseText).response.venue;
+
+			//checking if the shop has "open hours"
 			var coffeeShopOpen = function() {
 				if(coffeeShop.hasOwnProperty("hours")) {
 					return coffeeShop.hours.isOpen;
@@ -99,15 +106,20 @@ function getCoffeeShopInfo(coffeeShopId, coffeeShopDistance) {
 					return "No hours defined.";
 				}
 			}
+
+			//checking if the shop has  pricing defined
 			var coffeeShopPrice = function() {
 				if(coffeeShop.hasOwnProperty("price")) {
 					return coffeeShop.price.tier;
 				} else {
-					return 9; // price tiers are from 1 (cheapst) to 4 (most expensive), high value so they appear on end of list when sorted.
+					return 9; // price tiers are from 1 (cheapst) to 4 (most expensive); defined high value so they appear at end of the list when sorted.
 				}
 			}
+
+			//returning the URL of the venue picture
 			var coffeeShopPicture = coffeeShop.photos.groups["0"].items["0"].prefix + "500x300" + coffeeShop.photos.groups["0"].items["0"].suffix;
 
+			//populating list of coffee shops
 			var coffeeShopObj = {
 				id : coffeeShop.id,
 				name : coffeeShop.name,
@@ -119,29 +131,43 @@ function getCoffeeShopInfo(coffeeShopId, coffeeShopDistance) {
 				lng : coffeeShop.location.lng
 			}
 			coffeeShops.push(coffeeShopObj);
-			// addCoffeeShopToList(coffeeShopObj);
-			sortByDistance();
-			document.getElementById("coffee-shops-list").innerHTML = "";
-			coffeeShops.forEach(function(shop){
-				addCoffeeShopToList(shop);
-			});
+
 			createShopMarker(coffeeShopObj);
+			sortByDistanceAndRenderHTML();
+			//inefficient method of populating the list (but works without big hit on performance since the list is only max 10 entries long), would be better using ajax function recursively, or even better with promises
 		}
 	};
-	ajax.open("GET",  venueURL, true);
-	ajax.send();
+	ajaxGetInfo.open("GET",  venueURL, true);
+	ajaxGetInfo.send();
 }
 
-//// SORT FUNCTIONS
-function sortByDistance() {
+
+// SORT FUNCTIONS (merged functions because both ajax call and onclick function needs them, NOT best practice)
+function sortByDistanceAndRenderHTML() {
+	document.getElementById("sort__distance").classList.add('sort__button--active');
+	document.getElementById("sort__price").classList.remove('sort__button--active');
+
 	coffeeShops.sort(function(a,b) {
 		return a.distance - b.distance;
 	});
+
+	document.getElementById("coffee-shops-list").innerHTML = "";
+	coffeeShops.forEach(function(shop){
+		addCoffeeShopToList(shop);
+	});
 }
 
-function sortByPrice() {
+function sortByPriceAndRenderHTML() {
+	document.getElementById("sort__price").classList.add('sort__button--active');
+	document.getElementById("sort__distance").classList.remove('sort__button--active');
+
 	coffeeShops.sort(function(a,b) {
 		return a.price - b.price;
+	});
+
+	document.getElementById("coffee-shops-list").innerHTML = "";
+	coffeeShops.forEach(function(shop){
+		addCoffeeShopToList(shop);
 	});
 }
 
@@ -174,6 +200,7 @@ function createShopMarker(coffeeShop) {
 		popupInfo.close();
 	});
 }
+
 function createUserMarker(userLat, userLng) {
 	var marker = new google.maps.Marker({
 		position: {lat: userLat, lng: userLng},
@@ -185,10 +212,11 @@ function createUserMarker(userLat, userLng) {
 
 //RENDERING HTML ITEMS
 function addCoffeeShopToList (coffeeShop) {
-	if(coffeeShop.isOpen !== false) { //renders shops that are either open or dont have defined working hours (possibly open)
+	if(coffeeShop.isOpen !== false) { //renders only shops that are either open or dont have defined working hours (possibly open)
 		var ul = document.getElementById("coffee-shops-list");
 		var li = document.createElement("li");
 
+		//returning the string with coffee shop price tier
 		function coffeeShopPriceExists() {
 			if (coffeeShop.price<=4) {
 				return "Price: " + "$".repeat(coffeeShop.price) + "<span class='coffee-shop__price--faded'>" + "$".repeat(4-coffeeShop.price) + "</span>";
@@ -210,27 +238,6 @@ function addCoffeeShopToList (coffeeShop) {
 		ul.appendChild(li);
 	}
 }
-
-//SET ACTIVE CLASS AND SORT  <<< ADD DYNAMIC CODE HERE
-document.getElementById("sort__distance").addEventListener("click", function() {
-	document.getElementById("sort__distance").classList.add('sort__button--active');
-	document.getElementById("sort__price").classList.remove('sort__button--active');
-	sortByDistance();
-	document.getElementById("coffee-shops-list").innerHTML = "";
-	coffeeShops.forEach(function(shop){
-		addCoffeeShopToList(shop);
-	});
-
-});
-document.getElementById("sort__price").addEventListener("click", function() {
-	document.getElementById("sort__price").classList.add('sort__button--active');
-	document.getElementById("sort__distance").classList.remove('sort__button--active');
-	sortByPrice();
-	document.getElementById("coffee-shops-list").innerHTML = "";
-	coffeeShops.forEach(function(shop){
-		addCoffeeShopToList(shop);
-	});
-});
 
 
 //MODAL ERROR MESSAGE
