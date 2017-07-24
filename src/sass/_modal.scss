@@ -1,0 +1,44 @@
+#modal {
+	width:100vw;
+	height: 100vh;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 9999;
+	background-color: rgba($text, 0.75);
+	// background-color: $text;
+	display: none; //default flex
+	padding: 30px;
+}
+
+.error-box {
+	width: 600px;
+	position: relative;
+	margin: auto auto;
+	background-color: $inverse-text;
+	border:  1px solid $border;
+	border-radius: 5px;
+	color: $text;
+	text-align: center;
+	padding: 60px;
+	@media (max-width: 575px) {
+		padding: 10vw;
+	}
+}
+
+#error-box__description {
+	font-size: 28px;
+	color: $accent;
+	margin-top: 60px;
+	@media (max-width: 575px) {
+		margin-top: 10vw;
+		font-size: 20px;
+	}
+}
+
+.error-box__image {
+	@media (max-width: 575px) {
+		width: 64px;
+		height: auto;
+	}
+}

@@ -3,12 +3,12 @@
 	border-top: 1px solid $border;
 }
 
-#coffee-shop {
+.coffee-shop {
 	margin: 15px 0;
 	display: flex;
 }
 
-#coffee-shop__picture {
+.coffee-shop__picture {
 	width: 100px;
 	height: 75px;
 	margin-right: 30px;
@@ -19,14 +19,19 @@
 	border-bottom: 1px solid $border;
 }
 
-#coffee-shop__name {
+.coffee-shop__name {
 	font-size: $shopTitleSize;
 	font-weight: $shopTitleWeight;
 	color: $text;
+	margin-bottom: 10px;
 }
 
-#coffee-shop__price {
+.coffee-shop__price {
 	font-size: $shopPriceSize;
 	font-weight: $shopPriceWeight;
 	color: $text;
+}
+
+.coffee-shop__price--faded {
+	color: $border;
 }

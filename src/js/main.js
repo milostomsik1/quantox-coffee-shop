@@ -1,6 +1,6 @@
 //Foursquare API auth
-var CLIENT_ID = "SRSTKKDUOVCGTIYWEDEXYFGPPCFWSE25KA3PIJ3MLR0UFRWK"; //ES6 CONST
-var CLIENT_SECRET = "CMTPSXLN4WZL0W2GT2GIYADXUKXFPAUKXDBKFYFXQHASS4KV"; //ES6 CONST
+var CLIENT_ID = "3DG1ROMCV35ATTHJNEUPDYFTFCSFN52DCTKMDLFLS5ZDAJVC"; //ES6 CONST
+var CLIENT_SECRET = "WVS2J45N3P1IWEGDFZHVPZXOBELB5XR1VHNZQZ2KMAQVHRQO"; //ES6 CONST
 // var GOOGLE_MAPS_API_KEY = "AIzaSyA4L_QGX6E5Kb2ggRi_B0ijnBUTBSGSx4g" //ES6 CONST
 
 //VARS
@@ -16,10 +16,9 @@ var coffeeShops = [];
 //RUNS GEOLOCATION ON LOAD
 (function getLocation() {
 	if (navigator.geolocation) {
-		navigator.geolocation.getCurrentPosition(getLatLng, getError, {enableHighAccuracy: true, timeout: 5000});
+		navigator.geolocation.getCurrentPosition(getLatLng, getError, {enableHighAccuracy:true, timeout:30000, maximumAge:600000}); //30sec timeout, 10min age
 	} else {
-		alert("Geolocation is not supported.");
-		//add manual location entry
+		showErrorModal("Geolocation is not supported.");
 	}
 })();
 
@@ -27,7 +26,6 @@ var coffeeShops = [];
 function getLatLng(position) {
 	userLatitude = position.coords.latitude;
 	userLongitude = position.coords.longitude;
-	console.log(userLatitude + " " + userLongitude);
 
 	searchForCoffeeShops(userLatitude, userLongitude);
 	initMap(userLatitude, userLongitude);
@@ -37,16 +35,16 @@ function getLatLng(position) {
 function getError(error) {
 	switch(error.code) {
 		case error.PERMISSION_DENIED:
-			alert("User denied the request for Geolocation.");
+			showErrorModal("Geolocation failed: please allow browser to access your location and refresh the page.");
 			break;
 		case error.POSITION_UNAVAILABLE:
-			alert("Location information is unavailable.");
+			showErrorModal("Location information is unavailable.");
 			break;
 		case error.TIMEOUT:
-			alert("The request to get user location timed out.");
+			showErrorModal("The request to get user location timed out.");
 			break;
 		case error.UNKNOWN_ERROR:
-			alert("An unknown error occurred.");
+			showErrorModal("An unknown error occurred.");
 			break;
 	}
 }
@@ -56,7 +54,7 @@ function getError(error) {
 //SEARCHES FOR UP TO 10 COFFEE SHOPS WITHIN 1000M RADIUS
 function searchForCoffeeShops(lat, lng) {
 	var venuesRequested = 10;
-	var searchRadius = 1300;  // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< VRATITI NA 1000 METARA
+	var searchRadius = 9999;  // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< VRATITI NA 1000 METARA
 	var searchVenuesURL =	"https://api.foursquare.com/v2/venues/search?" +
 									"client_id=" + CLIENT_ID +
 									"&client_secret=" + CLIENT_SECRET +
@@ -94,7 +92,6 @@ function getCoffeeShopInfo(coffeeShopId, coffeeShopDistance) {
 	ajax.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			var coffeeShop = JSON.parse(this.responseText).response.venue;
-			console.log(coffeeShop);
 			var coffeeShopOpen = function() {
 				if(coffeeShop.hasOwnProperty("hours")) {
 					return coffeeShop.hours.isOpen;
@@ -109,7 +106,7 @@ function getCoffeeShopInfo(coffeeShopId, coffeeShopDistance) {
 					return 9; // price tiers are from 1 (cheapst) to 4 (most expensive), high value so they appear on end of list when sorted.
 				}
 			}
-			var coffeeShopPicture = coffeeShop.photos.groups["0"].items["0"].prefix + "original" + coffeeShop.photos.groups["0"].items["0"].suffix;
+			var coffeeShopPicture = coffeeShop.photos.groups["0"].items["0"].prefix + "500x300" + coffeeShop.photos.groups["0"].items["0"].suffix;
 
 			var coffeeShopObj = {
 				id : coffeeShop.id,
@@ -122,7 +119,12 @@ function getCoffeeShopInfo(coffeeShopId, coffeeShopDistance) {
 				lng : coffeeShop.location.lng
 			}
 			coffeeShops.push(coffeeShopObj);
-			addCoffeeShopToList(coffeeShopObj);
+			// addCoffeeShopToList(coffeeShopObj);
+			sortByDistance();
+			document.getElementById("coffee-shops-list").innerHTML = "";
+			coffeeShops.forEach(function(shop){
+				addCoffeeShopToList(shop);
+			});
 			createShopMarker(coffeeShopObj);
 		}
 	};
@@ -150,6 +152,7 @@ function initMap(userLatitude, userLongitude) {
 		zoom:  15,
 		streetViewControl: false,
 		mapTypeControl: false,
+		// scrollwheel: false,
 		center: {lat: userLatitude, lng: userLongitude}
 	});
 
@@ -162,7 +165,7 @@ function createShopMarker(coffeeShop) {
 		title: coffeeShop.name
 	});
 	var popupInfo = new google.maps.InfoWindow({
-		content: "<h2>" + coffeeShop.name + "("  + coffeeShop.distance + "m)"+ "</h2>"
+		content: "<span>" + coffeeShop.name + "("  + coffeeShop.distance + "m)"+ "</span>"
 	});
 	marker.addListener("click", function() {
 		popupInfo.open(map, marker);
@@ -182,28 +185,30 @@ function createUserMarker(userLat, userLng) {
 
 //RENDERING HTML ITEMS
 function addCoffeeShopToList (coffeeShop) {
-	var ul = document.getElementById("coffee-shops-list");
-	var li = document.createElement("li");
+	if(coffeeShop.isOpen !== false) { //renders shops that are either open or dont have defined working hours (possibly open)
+		var ul = document.getElementById("coffee-shops-list");
+		var li = document.createElement("li");
 
-	function coffeeShopPriceExists() {
-		if (coffeeShop.price<=4) {
-			return "Price: " + "$".repeat(coffeeShop.price);
-		} else {
-			return "";
+		function coffeeShopPriceExists() {
+			if (coffeeShop.price<=4) {
+				return "Price: " + "$".repeat(coffeeShop.price) + "<span class='coffee-shop__price--faded'>" + "$".repeat(4-coffeeShop.price) + "</span>";
+			} else {
+				return "No pricing defined.";
+			}
 		}
+
+		var html =
+		'<li class="coffee-shop">' +
+			'<img  class="coffee-shop__picture" src=" '+ coffeeShop.picture +' " alt=" '+ coffeeShop.name + ' ">' +
+			'<div class="coffee-shop__info">' +
+				'<h3 class="coffee-shop__name">' + coffeeShop.name + ' (' + coffeeShop.distance + 'm)</h3>' +
+				'<p class="coffee-shop__price">' + coffeeShopPriceExists() +'</p>' +
+			'</div>' +
+		'</li>';
+
+		li.innerHTML = html;
+		ul.appendChild(li);
 	}
-
-	var html =
-	'<li id="coffee-shop">' +
-		'<img  id="coffee-shop__picture" src=" '+ coffeeShop.picture +' " alt=" '+ coffeeShop.name + ' ">' +
-		'<div class="coffee-shop__info">' +
-			'<h3 id="coffee-shop__name">' + coffeeShop.name + ' (' + coffeeShop.distance + 'm)</h3>' +
-			'<p id="coffee-shop__price">' + coffeeShopPriceExists() +'</p>' +
-		'</div>' +
-	'</li>';
-
-	li.innerHTML = html;
-	ul.appendChild(li);
 }
 
 //SET ACTIVE CLASS AND SORT  <<< ADD DYNAMIC CODE HERE
@@ -226,3 +231,10 @@ document.getElementById("sort__price").addEventListener("click", function() {
 		addCoffeeShopToList(shop);
 	});
 });
+
+
+//MODAL ERROR MESSAGE
+function showErrorModal (error) {
+	document.getElementById("modal").style.display = "flex";
+	document.getElementById("error-box__description").innerHTML = error;
+}

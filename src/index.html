@@ -13,7 +13,7 @@
 <body>
 	<div id="google-map"></div>
 
-	<div id="content">
+	<div class="content">
 		<div class="banner">
 			<h1 class="banner__title">Coffee Shops</h1>
 			<h2 class="banner__subtitle">Taste the best coffee nearby!</h1>
@@ -26,8 +26,15 @@
 		</ul>
 	</div>
 
+	<div id="modal">
+		<div class="error-box">
+			<!-- <span class="error-box__close">x</span> -->
+			<img src="./assets/x.png" alt="error message" class="error-box__image">
+			<p id="error-box__description"></p>
+		</div>
+	</div>
 	<script async defer
-	    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4L_QGX6E5Kb2ggRi_B0ijnBUTBSGSx4g">
+	    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA4L_QGX6E5Kb2ggRi_B0ijnBUTBSGSx4g&sensor=true">
 	    </script>
 	<script src="js/main.js"></script>
 </body>
